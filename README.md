@@ -20,7 +20,7 @@ Getting Started
   # generates and writes to redis db, then reads with subgraph queries
   ./gradlew execute -PmainArgs="-db com.uber.ugb.db.redis.RedisDB -w -g benchdata/graphs/trips -b benchdata/workloads/workloada -r"
 
-  # generates and writes to redis db, then reads with subgraph queries
+  # generates and writes to Cassandra db, then reads with subgraph queries
   ./gradlew execute -PmainArgs="-db com.uber.ugb.db.cassandra.CassandraDB -w -g benchdata/graphs/trips -b benchdata/workloads/workloada -r"
 
   # this generate vertices and edges and write to noop, used for measuring data gen performance
@@ -93,3 +93,12 @@ build/libs/ugb-all-0.0.15.jar \
 echo $?
 
 ```
+
+
+Some Notes on what this does:
+---------------
+- Made to run benchmarks against C* and Redis as well in order to allow comparison of benchmarks when reading/writing to these key/value stores as opposed to a Graph DB (Tinkerpop). From the presentation prepared by Chris Lu:
+ ![image](https://user-images.githubusercontent.com/22231483/123763473-afada500-d878-11eb-9d07-82d2e6efe6a3.png)
+- Code for running using Gremlin-enabled db [can be found here](https://github.com/uber/uber-graph-benchmark/blob/master/core/src/main/java/com/uber/ugb/db/GremlinDB.java).
+- For some examples of how to use `com.uber.ugb.db.GremlinDB` class, see tests, e.g., [`vertexLabelFrequenciesMatchInputPartition`](https://github.com/uber/uber-graph-benchmark/blob/3ee4a4cf1abdcade0c83e9198c2eb5e86ffcbda8/core/src/test/java/com/uber/ugb/GraphGeneratorTest.java#L62) and [`verifyStatsManuallyInR`](https://github.com/uber/uber-graph-benchmark/blob/3ee4a4cf1abdcade0c83e9198c2eb5e86ffcbda8/core/src/test/java/com/uber/ugb/GraphGeneratorTest.java#L111-L120) and [`generateGraphAndCountEdges`](https://github.com/uber/uber-graph-benchmark/blob/3ee4a4cf1abdcade0c83e9198c2eb5e86ffcbda8/core/src/test/java/com/uber/ugb/GraphGeneratorTest.java#L124-L135) 
+- My best guess for how to actually load into gremlin-enabled DB is to use the CSV generator (see above regarding `com.uber.ugb.db.CsvOutputDB`) and then use that to load into a gremlin db.
